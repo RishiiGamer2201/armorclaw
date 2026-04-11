@@ -3,17 +3,22 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-*.env
 .venv/
 venv/
 env/
 dist/
 *.egg-info/
 
+# Environment secrets — never commit .env (only .env.example)
+.env
+
 # Node / Frontend
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+
+# OpenClaw skill — tracked in repo, deployed to ~/.openclaw/workspace/skills/clawshield/
+# openclaw-skill/  ← intentionally tracked
 
 # Legacy
 src_legacy/
