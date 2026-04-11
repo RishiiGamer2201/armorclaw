@@ -33,3 +33,16 @@ export async function fetchLogDates() {
   const res = await api.get("/api/audit/dates");
   return res.data.dates;
 }
+
+export async function fetchStatus() {
+  try {
+    const res = await api.get("/api/status", { timeout: 4000 });
+    return res.data;
+  } catch {
+    return {
+      backend:  { ok: false, label: "FastAPI Backend" },
+      openclaw: { ok: false, label: "OpenClaw Gateway" },
+      alpaca:   { ok: false, label: "Alpaca Paper API" },
+    };
+  }
+}

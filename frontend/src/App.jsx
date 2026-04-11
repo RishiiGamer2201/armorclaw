@@ -3,17 +3,18 @@
 import { useState } from "react";
 import "./index.css";
 
-import CommandInput      from "./components/CommandInput";
-import ExecutionTimeline from "./components/ExecutionTimeline";
-import AuditLogTable     from "./components/AuditLogTable";
-import { runAgent }      from "./api/agent";
+import CommandInput        from "./components/CommandInput";
+import ExecutionTimeline   from "./components/ExecutionTimeline";
+import AuditLogTable       from "./components/AuditLogTable";
+import ConnectionStatus    from "./components/ConnectionStatus";
+import { runAgent }        from "./api/agent";
 
 const TABS = ["Agent", "Audit Log"];
 
 export default function App() {
-  const [activeTab, setActiveTab]   = useState("Agent");
-  const [loading, setLoading]       = useState(false);
-  const [error, setError]           = useState(null);
+  const [activeTab, setActiveTab]         = useState("Agent");
+  const [loading, setLoading]             = useState(false);
+  const [error, setError]                 = useState(null);
   const [executionData, setExecutionData] = useState(null);
 
   const handleSubmit = async (prompt) => {
@@ -59,6 +60,9 @@ export default function App() {
           ))}
         </nav>
       </header>
+
+      {/* ── Live Connection Status Bar ──────────────────────────────────── */}
+      <ConnectionStatus />
 
       {/* ── Main ───────────────────────────────────────────────────────── */}
       <main className="main">

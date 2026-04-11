@@ -1,0 +1,50 @@
+
+/* -- Connection Status Strip ------------------------------------------------ */
+.conn-status-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.025);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.72rem;
+  font-weight: 500;
+  font-family: 'JetBrains Mono', monospace;
+  overflow: auto;
+  flex-wrap: nowrap;
+  scrollbar-width: none;
+}
+.conn-status-strip::-webkit-scrollbar { display: none; }
+
+.conn-overall { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; white-space: nowrap; }
+.conn-overall.all-ok    { color: var(--green); }
+.conn-overall.some-down { color: var(--orange); }
+
+.conn-divider { width: 1px; height: 14px; background: var(--border-bright); flex-shrink: 0; }
+
+.conn-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 20px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  white-space: nowrap; transition: border-color var(--transition);
+}
+.conn-pill.conn-ok   { border-color: rgba(80,200,120,0.2); color: var(--green); }
+.conn-pill.conn-down { border-color: rgba(220,60,60,0.2);  color: var(--red); }
+
+.conn-hint {
+  font-size: 0.68rem; color: var(--orange); white-space: nowrap;
+  padding: 2px 8px; border-radius: var(--radius-sm);
+  background: var(--orange-bg); border: 1px solid rgba(255,160,0,0.2);
+}
+.conn-hint code { font-family: 'JetBrains Mono', monospace; font-size: inherit; }
+
+.conn-ts {
+  margin-left: auto; color: var(--text-muted);
+  font-size: 0.65rem; white-space: nowrap; flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .conn-status-strip { flex-wrap: wrap; gap: 6px; }
+  .conn-hint { display: none; }
+}
