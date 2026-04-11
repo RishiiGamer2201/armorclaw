@@ -1,10 +1,10 @@
 <div align="center">
 
-# 🦞 ClawShield Finance
+#  ClawShield Finance
 
 ### *Cognitive Intent Enforcement for Autonomous Financial Agents*
 
-**ArmorIQ x OpenClaw Hackathon — Apogee '26, BITS Pilani**
+**ArmorIQ x OpenClaw Hackathon - Apogee '26, BITS Pilani**
 
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
@@ -18,7 +18,7 @@
 
 > *"The future risk isn't AI that refuses to act. It's AI that acts without permission."*
 
-**ClawShield Finance** is a real-time intent enforcement system that wraps autonomous financial agents with four independent security layers. Interact via **React Dashboard**, **Telegram bot**, or the **REST API** — every prompt goes through the same cryptographic enforcement pipeline.
+**ClawShield Finance** is a real-time intent enforcement system that wraps autonomous financial agents with four independent security layers. Interact via **React Dashboard**, **Telegram bot**, or the **REST API** - every prompt goes through the same cryptographic enforcement pipeline.
 
 [**Quick Start**](#-quick-start) · [**Architecture**](#architecture) · [**API Reference**](#-api-reference) · [**Telegram Setup**](#-openclaw--telegram-setup) · [**Run Commands**](#-run-commands-cheatsheet)
 
@@ -35,9 +35,9 @@
 - [Demo Scenarios](#-demo-scenarios)
 - [Quick Start](#-quick-start)
   - [Prerequisites](#prerequisites)
-  - [1 — Clone and Install](#1--clone-and-install)
-  - [2 — Configure Environment](#2--configure-environment)
-  - [3 — Run Everything](#3--run-everything)
+  - [1 - Clone and Install](#1--clone-and-install)
+  - [2 - Configure Environment](#2--configure-environment)
+  - [3 - Run Everything](#3--run-everything)
 - [OpenClaw / Telegram Setup](#-openclaw--telegram-setup)
 - [API Reference](#-api-reference)
 - [Run Commands Cheatsheet](#-run-commands-cheatsheet)
@@ -60,7 +60,7 @@ ClawShield Finance sits **between** an LLM planner and the real financial API (A
 | **3** | `ArmorIQ IAP` | Cryptographic Merkle proof per step |
 | **4** | `Validator` | `ConfidenceScore` semantic intent drift detection |
 
-> **If any layer fails — action is blocked. Alpaca API is never called.**
+> **If any layer fails - action is blocked. Alpaca API is never called.**
 
 ---
 
@@ -152,7 +152,7 @@ ClawShield Finance sits **between** an LLM planner and the real financial API (A
 
 ---
 
-## 🧠 MoE Expert Panel
+##  MoE Expert Panel
 
 Five specialized experts evaluate each action **in parallel** via `asyncio.gather`:
 
@@ -164,11 +164,11 @@ Five specialized experts evaluate each action **in parallel** via `asyncio.gathe
 | **DataExpert** | `data_expert.py` | Data Governance | Export destinations, portfolio data classification |
 | **TemporalExpert** | `temporal_expert.py` | Market Hours | NYSE hours, weekends, circuit breakers |
 
-Any expert can issue a **hard veto** — blocking the action regardless of the overall score.
+Any expert can issue a **hard veto** - blocking the action regardless of the overall score.
 
 ---
 
-## 📊 Confidence Score
+##  Confidence Score
 
 ```
 ConfidenceScore = 0.40 x PolicyConsensus
@@ -185,12 +185,12 @@ Threshold:  0.70  (configurable in policies/financial-policy.json)
 
 ---
 
-## 🎬 Demo Scenarios
+##  Demo Scenarios
 
 | # | Prompt | Outcome | Layer That Blocks | Score |
 |:---:|---|:---:|---|:---:|
-| 1 | *"What is the current price of AAPL?"* | Allowed | — | ~79% |
-| 2 | *"Buy 5 shares of MSFT at market price"* | Allowed | — | ~77% |
+| 1 | *"What is the current price of AAPL?"* | Allowed | - | ~79% |
+| 2 | *"Buy 5 shares of MSFT at market price"* | Allowed | - | ~77% |
 | 3 | *"Buy 500 shares of NVDA"* | Blocked | PolicyEngine (qty) | 0% |
 | 4 | *"Buy 2 shares of GME"* | Blocked | PolicyEngine (ticker) | 0% |
 | 5 | *"Short sell 3 shares of TSLA"* | Blocked | PolicyEngine (side) | 0% |
@@ -199,7 +199,7 @@ Threshold:  0.70  (configurable in policies/financial-policy.json)
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 
@@ -209,12 +209,12 @@ Threshold:  0.70  (configurable in policies/financial-policy.json)
 | Node.js | 18+ | https://nodejs.org |
 | Git | any | https://git-scm.com |
 | Alpaca Account (free) | Paper Trading | https://alpaca.markets |
-| OpenAI Key (optional) | — | https://platform.openai.com |
+| OpenAI Key (optional) | - | https://platform.openai.com |
 | OpenClaw (optional, for Telegram) | latest | `npm install -g openclaw@latest` |
 
 ---
 
-### 1 — Clone and Install
+### 1 - Clone and Install
 
 ```bash
 # Clone the repo
@@ -230,7 +230,7 @@ cd frontend && npm install && cd ..
 
 ---
 
-### 2 — Configure Environment
+### 2 - Configure Environment
 
 ```bash
 # Copy the example env file
@@ -242,10 +242,10 @@ Open `.env` and fill in your keys:
 ```env
 # ── OpenAI (LLM Planning) ─────────────────────────────────────────────────────
 # Get from: https://platform.openai.com/api-keys
-# Optional — without it, the fallback rule-based planner is used
+# Optional - without it, the fallback rule-based planner is used
 OPENAI_API_KEY=sk-proj-...
 
-# ── Alpaca Paper Trading (FREE — uses fake money) ─────────────────────────────
+# ── Alpaca Paper Trading (FREE - uses fake money) ─────────────────────────────
 # Sign up free at https://alpaca.markets
 # Go to: Paper Trading > API Keys > Generate
 ALPACA_API_KEY=PK...
@@ -253,7 +253,7 @@ ALPACA_SECRET_KEY=...
 
 # ── ArmorIQ IAP (Intent Authorization Protocol) ───────────────────────────────
 # Get from: https://platform.armoriq.ai
-# Optional — without it, system runs in local enforcement mode (0.5x weight)
+# Optional - without it, system runs in local enforcement mode (0.5x weight)
 ARMORIQ_API_KEY=ak_live_...
 ARMORIQ_USER_ID=your@email.com
 ARMORIQ_AGENT_ID=clawshield-finance-001
@@ -263,27 +263,27 @@ ARMORIQ_AGENT_ID=clawshield-finance-001
 
 ---
 
-### 3 — Run Everything
+### 3 - Run Everything
 
-**Option A — One-click launcher (Windows):**
+**Option A - One-click launcher (Windows):**
 ```powershell
 .\start.ps1
 ```
 
-**Option B — Manual (3 separate terminals):**
+**Option B - Manual (3 separate terminals):**
 
-**Terminal 1 — FastAPI Backend:**
+**Terminal 1 - FastAPI Backend:**
 ```bash
 python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-**Terminal 2 — React Dashboard:**
+**Terminal 2 - React Dashboard:**
 ```bash
 cd frontend
 npm run dev
 ```
 
-**Terminal 3 — OpenClaw Gateway (for Telegram):**
+**Terminal 3 - OpenClaw Gateway (for Telegram):**
 ```bash
 openclaw gateway --port 18789 --verbose
 ```
@@ -298,23 +298,23 @@ openclaw gateway --port 18789 --verbose
 
 ---
 
-## 🦞 OpenClaw / Telegram Setup
+##  OpenClaw / Telegram Setup
 
 This section is for **new users** who want to talk to ClawShield via Telegram.
 
-### Step 1 — Install OpenClaw
+### Step 1 - Install OpenClaw
 
 ```bash
 npm install -g openclaw@latest
 ```
 
-### Step 2 — Create a Telegram Bot
+### Step 2 - Create a Telegram Bot
 
 1. Open Telegram and search for **@BotFather**
 2. Send `/newbot` and follow the prompts
 3. Copy the **Bot Token** you receive (format: `123456:ABC-DEF...`)
 
-### Step 3 — Run OpenClaw Onboarding
+### Step 3 - Run OpenClaw Onboarding
 
 ```bash
 openclaw onboard
@@ -326,7 +326,7 @@ During onboarding:
 - **Channel:** Select Telegram
 - **Bot Token:** Paste the token from Step 2
 
-### Step 4 — Deploy the ClawShield Skill
+### Step 4 - Deploy the ClawShield Skill
 
 ```powershell
 # Windows
@@ -340,20 +340,20 @@ mkdir -p ~/.openclaw/workspace/skills/clawshield
 cp openclaw-skill/SKILL.md ~/.openclaw/workspace/skills/clawshield/SKILL.md
 ```
 
-### Step 5 — Start OpenClaw Gateway
+### Step 5 - Start OpenClaw Gateway
 
 ```bash
 openclaw gateway --port 18789 --verbose
 ```
 
-### Step 6 — Verify Skill Loaded
+### Step 6 - Verify Skill Loaded
 
 ```bash
 openclaw skills list
 # Should show: clawshield  (always)
 ```
 
-### Step 7 — Send Your First Message
+### Step 7 - Send Your First Message
 
 Open Telegram, find your bot, and send:
 ```
@@ -394,7 +394,7 @@ Summary:
 
 ---
 
-## 📡 API Reference
+##  API Reference
 
 ### Endpoints
 
@@ -410,7 +410,7 @@ Summary:
 | `GET` | `/api/audit/logs` | Fetch audit log entries |
 | `GET` | `/api/audit/dates` | List all audit log dates |
 
-### Example — Run Agent
+### Example - Run Agent
 
 ```bash
 curl -s -X POST http://localhost:8000/api/agent/run \
@@ -437,7 +437,7 @@ curl -s -X POST http://localhost:8000/api/agent/run \
 }
 ```
 
-### Example — System Status
+### Example - System Status
 
 ```bash
 curl http://localhost:8000/api/status
@@ -453,7 +453,7 @@ curl http://localhost:8000/api/status
 
 ---
 
-## ⚡ Run Commands Cheatsheet
+##  Run Commands Cheatsheet
 
 ```bash
 # ── Start individual services ─────────────────────────────────────────────────
@@ -546,7 +546,7 @@ open  http://127.0.0.1:18789              # macOS
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 armorclaw/
@@ -604,7 +604,7 @@ armorclaw/
 
 ---
 
-## 🛠 Tech Stack
+##  Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -621,9 +621,9 @@ armorclaw/
 
 ---
 
-## 📜 Policy Configuration
+##  Policy Configuration
 
-All enforcement rules live in `policies/financial-policy.json` — no hardcoded logic in source code:
+All enforcement rules live in `policies/financial-policy.json` - no hardcoded logic in source code:
 
 ```json
 {
@@ -654,7 +654,7 @@ All enforcement rules live in `policies/financial-policy.json` — no hardcoded 
 
 ---
 
-## 🧪 Testing
+##  Testing
 
 ```bash
 # Run all smoke tests (backend must be running on :8000)
@@ -686,34 +686,34 @@ All smoke tests passed!
 
 ---
 
-## 🏆 Hackathon Judging Criteria
+##  Hackathon Judging Criteria
 
 | Criterion | Our Implementation |
 |---|---|
-| **Enforcement Strength** | 4 independent layers — policy blocks before ArmorIQ consulted |
-| **No Hardcoded Logic** | All rules in `financial-policy.json` — 1 JSON edit to change any rule |
-| **Architecture Clarity** | Planner never touches APIs; Executor never reasons — clean separation |
-| **OpenClaw Integration** | SKILL.md + `/api/agent/telegram` — Telegram bot live via OpenClaw |
+| **Enforcement Strength** | 4 independent layers - policy blocks before ArmorIQ consulted |
+| **No Hardcoded Logic** | All rules in `financial-policy.json` - 1 JSON edit to change any rule |
+| **Architecture Clarity** | Planner never touches APIs; Executor never reasons - clean separation |
+| **OpenClaw Integration** | SKILL.md + `/api/agent/telegram` - Telegram bot live via OpenClaw |
 | **Frontend Integration** | React dashboard + live ConnectionStatus bar showing Backend/OpenClaw/Alpaca |
-| **Real Use Case** | Live Alpaca paper trading — real quotes, real paper orders |
+| **Real Use Case** | Live Alpaca paper trading - real quotes, real paper orders |
 | **Adversarial Robustness** | 7 demo scenarios + blocked at different layers each time |
 | **Audit Trail** | Every decision logged: `runId`, `expertVotes[]`, `confidenceScore`, `proofPath` |
 
 ---
 
-## 🔐 Security Notes
+##  Security Notes
 
-- **`.env` is gitignored** — never committed. Only `.env.example` is tracked.
-- **Alpaca Paper Trading only** — `paper-api.alpaca.markets`. No real money, ever.
-- **Fail-closed design** — if ArmorIQ unreachable, system uses local mode, not disabled.
-- **IEX free feed** — `?feed=iex` avoids needing any Alpaca data subscription.
-- **OpenClaw skill** — only routes financial prompts; all enforcement still on ClawShield backend.
+- **`.env` is gitignored** - never committed. Only `.env.example` is tracked.
+- **Alpaca Paper Trading only** - `paper-api.alpaca.markets`. No real money, ever.
+- **Fail-closed design** - if ArmorIQ unreachable, system uses local mode, not disabled.
+- **IEX free feed** - `?feed=iex` avoids needing any Alpaca data subscription.
+- **OpenClaw skill** - only routes financial prompts; all enforcement still on ClawShield backend.
 
 ---
 
 <div align="center">
 
-*Built for the ArmorIQ x OpenClaw Hackathon — Apogee '26, BITS Pilani*
+*Built for the ArmorIQ x OpenClaw Hackathon - Apogee '26, BITS Pilani*
 
 **GitHub:** [RishiiGamer2201/armorclaw](https://github.com/RishiiGamer2201/armorclaw)
 
