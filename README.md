@@ -59,79 +59,101 @@ ClawShield Finance sits **between** an LLM planner and the real financial API (A
 
 ## Architecture
 
-```
-  User Prompt (Natural Language)
-         │
-         ▼
-  ┌──────────────────────────────────────────────┐
-  │  [1] LLM PLANNER  (backend/core/planner.py)  │
-  │  GPT-4o-mini OR rule-based fallback          │
-  │  Output: { intent, risk_level, steps[] }     │
-  │  ⚠️  Never touches APIs. Only plans.          │
-  └──────────────────┬───────────────────────────┘
-                     │
-                     ▼
-  ┌──────────────────────────────────────────────┐
-  │  [2] ARMORIQ IAP  (core/intent_validator.py) │
-  │  • Registers plan → issues intent token      │
-  │  • Merkle proof per step                     │
-  │  • Fail-closed: offline → local mode (0.5x)  │
-  └──────────────────┬───────────────────────────┘
-                     │
-          ┌──────────┴──────────┐
-          │    Per step:        │
-          ▼                     ▼
-  ┌───────────────┐   ┌────────────────────────────────┐
-  │  [3] POLICY   │   │  [4] MoE GATEKEEPER            │
-  │  ENGINE       │   │  (moe/gatekeeper.py)           │
-  │               │   │                                │
-  │  JSON rules   │   │  Selects 1–5 Expert Agents:    │
-  │  • blockedAct │   │  ┌────────────────────────┐    │
-  │  • tickers    │   │  │ ComplianceExpert        │    │
-  │  • sides      │   │  │ RiskExpert              │    │
-  │  • qty limits │   │  │ FraudExpert             │    │
-  │  • export     │   │  │ DataExpert              │    │
-  │               │   │  │ TemporalExpert          │    │
-  └───────┬───────┘   │  └────────────────────────┘    │
-          │           │  Runs in parallel (asyncio)    │
-          │           │  → PolicyConsensus (0.0–1.0)   │
-          │           └───────────────┬────────────────┘
-          │                           │
-          └──────────┬────────────────┘
-                     │
-                     ▼
-  ┌──────────────────────────────────────────────┐
-  │  [5] VALIDATOR  (core/validator.py)          │
-  │                                              │
-  │  ConfidenceScore = 0.40 × PolicyConsensus    │
-  │                 + 0.35 × ArmorIQProof        │
-  │                 + 0.25 × IntentAlignment     │
-  │                                              │
-  │  IntentAlignment = cosine_sim(               │
-  │    embed(plan.intent),                       │
-  │    embed(step.rationale)                     │
-  │  )   ← Jaccard fallback if OpenAI down       │
-  │                                              │
-  │  Score ≥ 0.70 AND no hard veto → EXECUTE     │
-  │  Score < 0.70 OR veto          → BLOCK       │
-  └──────────────────┬───────────────────────────┘
-                     │
-                     ▼
-  ┌──────────────────────────────────────────────┐
-  │  [6] TOOL EXECUTOR  (tools/financial_tools)  │
-  │  Alpaca paper API: quotes, orders, positions │
-  │  ← Only reached if ALL layers pass           │
-  └──────────────────┬───────────────────────────┘
-                     │
-                     ▼
-  ┌──────────────────────────────────────────────┐
-  │  [7] AUDIT LOGGER  (core/logger.py)          │
-  │  ArmorIQ format: runId, agentId, tool,       │
-  │  confidenceScore, expertVotes[], proofPath   │
-  │  → ./logs/clawshield-finance-YYYY-MM-DD.log  │
-  └──────────────────────────────────────────────┘
-```
-
+\  +---------------------------+   +--------------------+   +---------------------+
+  |  Telegram / Discord /     |   |  React Dashboard   |   |  Direct API / curl  |
+  |  WhatsApp / Slack / etc.  |   |  localhost:5173    |   |  / smoke_test.py    |
+  +---------------------------+   +--------------------+   +---------------------+
+              |                           |                           |
+              v                           |                           |
+  +-----------------------+              |                           |
+  |  OpenClaw Gateway     |              |                           |
+  |  port :18789          |              |                           |
+  |                       |              |                           |
+  |  clawshield/SKILL.md  |              |                           |
+  |  routes any financial |              |                           |
+  |  prompt to ClawShield |              |                           |
+  +-----------+-----------+              |                           |
+              |                          |                           |
+              |  POST /api/agent/        |  POST /api/agent/         |
+              |  telegram                |  run                      |
+              +--------------------------+---------------------------+
+                                         |
+                                         v
+  +--------------------------------------------------------------------------+
+  |             FastAPI Backend  (backend/main.py)  port :8000               |
+  |   /api/agent/run  . /api/agent/telegram  . /api/audit/logs  . /health    |
+  +------------------------------------------+-------------------------------+
+                                             |
+                                             v
+  +--------------------------------------------------------------------------+
+  |  [1] LLM PLANNER  (backend/core/planner.py)                              |
+  |  GPT-4o-mini OR rule-based fallback (zero API dependency)                |
+  |  Output: { intent, risk_level, steps[] }                                 |
+  |  Warning: Never touches trading APIs. Only produces structured plans.    |
+  +------------------------------------------+-------------------------------+
+                                             |
+                                             v
+  +--------------------------------------------------------------------------+
+  |  [2] ARMORIQ IAP  (core/intent_validator.py)                             |
+  |  . Registers plan  -->  issues cryptographic intent token                |
+  |  . Merkle proof anchored per plan step                                   |
+  |  . Fail-closed: offline --> local mode  (ArmorIQProof weight = 0.5x)    |
+  +------------------------------------------+-------------------------------+
+                                             |
+                              +--------------+--------------+
+                              |    Per step (both run):     |
+                              v                             v
+  +-----------------------------+   +--------------------------------------------+
+  |  [3] POLICY ENGINE          |   |  [4] MoE GATEKEEPER  (moe/gatekeeper.py)  |
+  |  (core/policy_engine.py)    |   |                                            |
+  |                             |   |  Selects experts, runs asyncio.gather()    |
+  |  Deterministic JSON rules:  |   |  +--------------------------------------+  |
+  |  . blockedActions           |   |  | ComplianceExpert -- ticker allowlist |  |
+  |  . allowedTickers           |   |  | RiskExpert       -- qty / notional   |  |
+  |  . allowedSides (buy only)  |   |  | FraudExpert      -- wash / injection |  |
+  |  . maxOrderQty (10)         |   |  | DataExpert       -- export policy    |  |
+  |  . maxOrderValueUSD (1500)  |   |  | TemporalExpert   -- market hours     |  |
+  |  . maxDailyTrades (5)       |   |  +--------------------------------------+  |
+  +-------------+---------------+   |  --> PolicyConsensus score (0.0 to 1.0)   |
+                |                   +---------------------+----------------------+
+                |                                         |
+                +---------------------+-------------------+
+                                      |
+                                      v
+  +--------------------------------------------------------------------------+
+  |  [5] VALIDATOR  (core/validator.py)                                      |
+  |                                                                          |
+  |  ConfidenceScore = 0.40 x PolicyConsensus                                |
+  |                 + 0.35 x ArmorIQProof                                    |
+  |                 + 0.25 x IntentAlignment                                 |
+  |                                                                          |
+  |  IntentAlignment = cosine_sim(embed(plan.intent), embed(step.rationale)) |
+  |                    Jaccard fallback when OpenAI embeddings are offline   |
+  |                                                                          |
+  |  Score >= 0.70  AND  no hard_veto  -->  PROCEED TO EXECUTE              |
+  |  Score <  0.70   OR  hard_veto    -->  BLOCK  (logged to audit)         |
+  +------------------------------------------+-------------------------------+
+                                             |
+                                             v
+  +--------------------------------------------------------------------------+
+  |  [6] TOOL EXECUTOR  (tools/financial_tools.py)                           |
+  |  Alpaca Paper Trading API  . IEX free feed  . quotes, orders, positions  |
+  |  Only reached when ALL 4 layers pass. Real money is never at risk.       |
+  +------------------------------------------+-------------------------------+
+                                             |
+                          +------------------+------------------+
+                          v                                     v
+  +----------------------------------+    +----------------------------------+
+  |  [7] AUDIT LOGGER                |    |  Response routed to caller       |
+  |  (core/logger.py)                |    |                                  |
+  |  Structured JSONL (ArmorIQ fmt): |    |  --> React Dashboard  (JSON)     |
+  |  runId, agentId, tool,           |    |  --> OpenClaw         (markdown) |
+  |  confidenceScore, expertVotes[], |    |      --> Telegram / Discord /    |
+  |  proofPath, blockedBy            |    |          WhatsApp / Slack / etc. |
+  |  --> logs/clawshield-YYYY-MM-    |    |  --> Direct API caller (JSON)    |
+  |        DD.log (JSONL)            |    +----------------------------------+
+  +----------------------------------+
+\
 ---
 
 ## 🧠 MoE Expert Panel
