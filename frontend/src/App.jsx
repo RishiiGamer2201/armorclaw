@@ -7,9 +7,10 @@ import CommandInput        from "./components/CommandInput";
 import ExecutionTimeline   from "./components/ExecutionTimeline";
 import AuditLogTable       from "./components/AuditLogTable";
 import ConnectionStatus    from "./components/ConnectionStatus";
+import TelegramChat        from "./components/TelegramChat";
 import { runAgent }        from "./api/agent";
 
-const TABS = ["Agent", "Audit Log"];
+const TABS = ["Agent", "Telegram", "Audit Log"];
 
 export default function App() {
   const [activeTab, setActiveTab]         = useState("Agent");
@@ -154,6 +155,10 @@ export default function App() {
               </div>
             </div>
           </>
+        )}
+
+        {activeTab === "Telegram" && (
+          <TelegramChat />
         )}
 
         {activeTab === "Audit Log" && (

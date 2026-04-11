@@ -22,7 +22,7 @@ export async function listDemoScenarios() {
 
 export async function fetchAuditLogs({ date, limit = 100, event } = {}) {
   const params = {};
-  if (date)  params.date  = date;
+  if (date) params.date = date;
   if (limit) params.limit = limit;
   if (event) params.event = event;
   const res = await api.get("/api/audit/logs", { params });
@@ -45,4 +45,14 @@ export async function fetchStatus() {
       alpaca:   { ok: false, label: "Alpaca Paper API" },
     };
   }
+}
+
+export async function runTelegramAgent(prompt) {
+  // Calls the same endpoint the Telegram bot uses — returns pre-formatted markdown text
+  const res = await api.post("/api/agent/telegram", { prompt }, {
+    responseType: "text",
+    headers: { "Content-Type": "application/json" },
+    timeout: 45000,
+  });
+  return typeof res.data === "string" ? res.data : JSON.stringify(res.data, null, 2);
 }
