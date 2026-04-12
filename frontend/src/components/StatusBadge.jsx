@@ -6,6 +6,7 @@ const CONFIG = {
   blocked:  { label: "BLOCKED", icon: "🚫", cls: "badge-blocked"  },
   error:    { label: "ERROR",   icon: "⚠️",  cls: "badge-error"   },
   pending:  { label: "PENDING", icon: "⏳", cls: "badge-pending"  },
+  info:     { label: "INFO",    icon: "ℹ️",  cls: "badge-pending"  },
 };
 
 export default function StatusBadge({ status }) {

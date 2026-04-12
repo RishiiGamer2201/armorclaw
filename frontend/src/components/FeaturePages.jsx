@@ -259,50 +259,6 @@ export default function FeaturePages({ featureId }) {
 
       {result && (
         <div className="feature-result-container">
-          {/* Summary */}
-          {result.stats && (
-            <div className="summary-bar" style={{ marginBottom: 16 }}>
-              <div className="summary-stat stat-allowed">
-                <div className="summary-stat-val">{result.stats.allowed}</div>
-                <div className="summary-stat-label">Allowed</div>
-              </div>
-              <div className="summary-stat stat-blocked">
-                <div className="summary-stat-val">{result.stats.blocked}</div>
-                <div className="summary-stat-label">Blocked</div>
-              </div>
-              <div className="summary-stat stat-errors">
-                <div className="summary-stat-val">{result.stats.errors}</div>
-                <div className="summary-stat-label">Errors</div>
-              </div>
-              <div className="summary-stat stat-total">
-                <div className="summary-stat-val">
-                  {result.avg_confidence != null ? `${(result.avg_confidence * 100).toFixed(0)}%` : "-"}
-                </div>
-                <div className="summary-stat-label">Avg Confidence</div>
-              </div>
-            </div>
-          )}
-
-          {/* Intent */}
-          {result.intent && (
-            <div className="intent-banner" style={{ marginBottom: 16 }}>
-              <div className="intent-text">
-                <div className="intent-label">Detected Intent</div>
-                <div className="intent-value">{result.intent}</div>
-                <div className="intent-meta">
-                  <span className={`intent-risk ${result.risk_level}`}>
-                    {result.risk_level?.toUpperCase()} RISK
-                  </span>
-                  {result.token_id && (
-                    <span className="intent-token">
-                      Token: {result.token_id.slice(0, 20)}... ({result.token_source})
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
           <FeatureResultViewer executionData={result} />
         </div>
       )}

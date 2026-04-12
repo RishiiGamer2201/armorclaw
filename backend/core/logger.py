@@ -44,6 +44,7 @@ async def log_step_allowed(step: dict, policy_result: dict, armoriq_result: dict
         "event": "STEP_ALLOWED",
         "agentId": "claw-shield-finance-agent",
         "tool": step.get("tool"),
+        "args": step.get("args"),
         "mcp": "alpaca-mcp",
         "action": "allowed",
         "reason": policy_result.get("reason"),
@@ -65,6 +66,7 @@ async def log_step_blocked(step: dict, reason: str, rule: str, severity: str,
         "event": "STEP_BLOCKED",
         "agentId": "claw-shield-finance-agent",
         "tool": step.get("tool"),
+        "args": step.get("args"),
         "mcp": "alpaca-mcp",
         "action": "blocked",
         "blockedBy": blocked_by,
@@ -87,6 +89,7 @@ async def log_step_executed(step: dict, result: dict, confidence: float) -> None
         "event": "STEP_EXECUTED",
         "agentId": "claw-shield-finance-agent",
         "tool": step.get("tool"),
+        "args": step.get("args"),
         "result": result,
         "confidenceScore": confidence,
     })
@@ -99,6 +102,7 @@ async def log_step_error(step: dict, error: str) -> None:
         "event": "STEP_ERROR",
         "agentId": "claw-shield-finance-agent",
         "tool": step.get("tool"),
+        "args": step.get("args"),
         "reason": error,
     })
 

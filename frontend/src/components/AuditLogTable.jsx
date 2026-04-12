@@ -18,6 +18,7 @@ function eventToStatus(event) {
   if (event.includes("ALLOWED") || event.includes("EXECUTED")) return "executed";
   if (event.includes("BLOCKED")) return "blocked";
   if (event.includes("ERROR"))   return "error";
+  if (event.includes("PLAN") || event.includes("SUMMARY")) return "info";
   return "pending";
 }
 
