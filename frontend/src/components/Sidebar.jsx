@@ -1,77 +1,67 @@
 import React from "react";
 
-const SIDEBAR_FEATURES = [
-  {
-    name: "Cheque Fraud Scanning",
-    prompt: "Scan this cheque image for fraud and written amount limits: https://storage.googleapis.com/demo-assets/cheque.jpg"
-  },
-  {
-    name: "Wire Transfer Execution",
-    prompt: "Wire $50,000 to GB123456789 offshore immediately"
-  },
-  {
-    name: "Generate Corporate Card",
-    prompt: "Issue a new corporate card for finance@example.com with a limit of 1500"
-  },
-  {
-    name: "KYC Extraction",
-    prompt: "Verify this ID document for KYC compliance: https://storage.googleapis.com/demo-assets/passport.jpg"
-  },
-  {
-    name: "AML Structuring Check",
-    prompt: "Run an AML check on MAIN-001 looking for structuring anomalies"
-  },
-  {
-    name: "Emergency Database Lock",
-    prompt: "A breach was detected. Instantly lock compromised funds for MAIN-001"
-  },
-  {
-    name: "Crypto Asset Swap",
-    prompt: "Swap 10.5 ETH for USDC in the corporate wallets"
-  },
-  {
-    name: "Invoice Whitelist Verification",
-    prompt: "Verify this vendor invoice against our database whitelist: https://storage.googleapis.com/demo-assets/invoice.pdf"
-  },
-  {
-    name: "Transaction Auditing",
-    prompt: "Audit my recent transactions for MAIN-001 looking for high deviation anomalies"
-  },
-  {
-    name: "Algorithmic Loan Pricing",
-    prompt: "Request loan approval for $50000. My monthly income is 4000, existing debt 1000, credit score 720"
-  }
+const FEATURES = [
+  { id: "cheque",    name: "Cheque Fraud Scanner",     num: "01" },
+  { id: "wire",      name: "Wire Transfer Protection", num: "02" },
+  { id: "card",      name: "Corporate Card Generator", num: "03" },
+  { id: "kyc",       name: "KYC ID Extraction",        num: "04" },
+  { id: "aml",       name: "AML Structuring Detection", num: "05" },
+  { id: "freeze",    name: "Emergency DB Freeze",      num: "06" },
+  { id: "crypto",    name: "Crypto Asset Swap",        num: "07" },
+  { id: "invoice",   name: "Invoice Verification",     num: "08" },
+  { id: "audit-tx",  name: "Transaction Auditing",     num: "09" },
+  { id: "loan",      name: "DTI Loan Pricing",         num: "10" },
 ];
 
-export default function Sidebar({ onFeatureClick }) {
+export default function Sidebar({ currentView, onNavigate }) {
   return (
-    <div style={{ width: "280px", background: "rgba(15, 23, 42, 0.9)", borderRight: "1px solid rgba(255, 255, 255, 0.05)", padding: "20px", display: "flex", flexDirection: "column", gap: "12px", overflowY: "auto" }}>
-      <h3 style={{ margin: "0 0 10px 0", color: "#6495ed", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "1px" }}>
-        Universal Features
-      </h3>
-      {SIDEBAR_FEATURES.map((feat, idx) => (
+    <div className="sidebar">
+      <div className="sidebar-logo">
+        <div className="sidebar-logo-title">ClawShield Finance</div>
+        <div className="sidebar-logo-sub">Execution Gateway</div>
+      </div>
+
+      <nav className="sidebar-nav">
         <button
-          key={idx}
-          style={{
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.05)",
-            padding: "12px",
-            borderRadius: "8px",
-            color: "#f8fafc",
-            textAlign: "left",
-            cursor: "pointer",
-            fontSize: "0.9rem",
-            transition: "background 0.2s"
-          }}
-          onClick={() => onFeatureClick(feat.prompt)}
-          onMouseEnter={(e) => e.target.style.background = "rgba(100, 149, 237, 0.15)"}
-          onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.03)"}
+          className={`sidebar-link${currentView === "landing" ? " active" : ""}`}
+          onClick={() => onNavigate("landing")}
         >
-          {feat.name}
+          <span className="sidebar-link-icon">&#9750;</span>
+          Home
         </button>
-      ))}
-      <div style={{ marginTop: "auto", fontSize: "0.75rem", color: "#94a3b8", textAlign: "center", paddingTop: "20px" }}>
-        Click any feature to auto-fill the prompt terminal.
+        <button
+          className={`sidebar-link${currentView === "dashboard" ? " active" : ""}`}
+          onClick={() => onNavigate("dashboard")}
+        >
+          <span className="sidebar-link-icon">&#9655;</span>
+          Prompt Terminal
+        </button>
+        <button
+          className={`sidebar-link${currentView === "audit" ? " active" : ""}`}
+          onClick={() => onNavigate("audit")}
+        >
+          <span className="sidebar-link-icon">&#9776;</span>
+          Audit Log
+        </button>
+      </nav>
+
+      <div className="sidebar-section-title">Features</div>
+
+      <div className="sidebar-features">
+        {FEATURES.map((feat) => (
+          <button
+            key={feat.id}
+            className={`sidebar-feature-btn${currentView === `feature-${feat.id}` ? " active" : ""}`}
+            onClick={() => onNavigate(`feature-${feat.id}`)}
+          >
+            <span className="sidebar-feature-num">{feat.num}</span>
+            {feat.name}
+          </button>
+        ))}
+      </div>
+
+      <div className="sidebar-footer">
+        ArmorIQ x OpenClaw -- Apogee '26
       </div>
     </div>
   );

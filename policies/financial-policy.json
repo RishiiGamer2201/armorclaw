@@ -1,4 +1,5 @@
 {
+  "confidenceThreshold": 0.60,
   "operations": {
     "blockedActions": [
       "short_sell",
