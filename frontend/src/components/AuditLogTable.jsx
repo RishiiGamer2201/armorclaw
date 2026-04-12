@@ -91,6 +91,7 @@ export default function AuditLogTable() {
                 <th>Status</th>
                 <th>Rule / Reason</th>
                 <th>Confidence</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -111,6 +112,26 @@ export default function AuditLogTable() {
                           {(e.confidenceScore * 100).toFixed(0)}%
                         </span>
                       : "—"}
+                  </td>
+                  <td>
+                    {eventToStatus(e.event) === "blocked" && (
+                      <button 
+                        className="launch-btn"
+                        style={{ padding: "4px 8px", fontSize: "0.75rem" }}
+                        onClick={async () => {
+                           try {
+                             const { overrideAction } = await import("../api/agent");
+                             await overrideAction(e.tool || "generic", e.args || {});
+                             alert("Override Executed successfully.");
+                             load();
+                           } catch (err) {
+                             alert("Override Failed: " + err.message);
+                           }
+                        }}
+                      >
+                        Approve Override
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

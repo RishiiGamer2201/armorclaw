@@ -134,6 +134,10 @@ class IntentValidator:
         valid_tools = [
             "get_quote", "get_account", "get_positions", "get_orders",
             "place_order", "cancel_order", "export_portfolio_data",
+            "process_wire_transfer", "analyze_cheque_image", "analyze_vendor_invoice", 
+            "issue_corporate_card", "verify_kyc_document", "detect_money_laundering", 
+            "lock_compromised_funds", "process_crypto_swap", "request_loan_approval", 
+            "audit_transaction_anomalies"
         ]
         tool = step.get("tool", "")
         if tool not in valid_tools:

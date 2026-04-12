@@ -14,6 +14,12 @@ TRADING_TOOLS   = {"place_order"}
 READ_ONLY_TOOLS = {"get_quote", "get_account", "get_positions", "get_orders", "get_bars"}
 EXPORT_TOOLS    = {"export_portfolio_data"}
 CANCEL_TOOLS    = {"cancel_order"}
+UNIVERSAL_TOOLS = {
+    "process_wire_transfer", "analyze_cheque_image", "analyze_vendor_invoice", 
+    "issue_corporate_card", "verify_kyc_document", "detect_money_laundering", 
+    "lock_compromised_funds", "process_crypto_swap", "request_loan_approval", 
+    "audit_transaction_anomalies"
+}
 
 
 class PolicyEngine:
@@ -40,9 +46,9 @@ class PolicyEngine:
             self.daily_trade_date = today
 
         # 1. Blocked-actions list (from JSON)
-        if tool_name in self.policy["operations"]["blockedActions"]:
+        if tool_name in self.policy.get("operations", {}).get("blockedActions", []):
             return self._block(
-                f"'{tool_name}' is listed in operations.blockedActions — "
+                f"'{tool_name}' is listed in operations.blockedActions - "
                 f"this action is not within the agent's authorised scope.",
                 "operations.blockedActions",
                 "critical",
@@ -57,8 +63,10 @@ class PolicyEngine:
             return self._enforce_export(args)
         if tool_name in CANCEL_TOOLS:
             return self._enforce_cancel_order(args)
+        if tool_name in UNIVERSAL_TOOLS:
+            return self._enforce_universal(tool_name, args)
 
-        # 3. Unknown tool — fail closed
+        # 3. Unknown tool - fail closed
         return self._block(
             f"'{tool_name}' is not registered in the approved tool set. "
             "Unknown tools are blocked by default (fail-closed policy).",
@@ -67,6 +75,14 @@ class PolicyEngine:
         )
 
     # ── Category enforcers ────────────────────────────────────────────────────
+    def _enforce_universal(self, tool_name: str, args: dict) -> dict:
+        u = self.policy.get("universal", {})
+        
+        if tool_name == "process_wire_transfer":
+            if float(args.get("amount", 0)) > u.get("max_wire_transfer_amount", 0):
+                return self._block(f"Wire transfer exceeds {u.get('max_wire_transfer_amount')}", "universal.maxWire", "high")
+        
+        return self._allow(f"Universal feature '{tool_name}' passing initial bounds check")
     def _enforce_read_only(self, tool_name: str, args: dict) -> dict:
         if tool_name in ("get_quote", "get_bars"):
             return self._check_ticker(args.get("symbol"))

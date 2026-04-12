@@ -1,20 +1,24 @@
-// frontend/src/components/CommandInput.jsx
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const EXAMPLES = [
   { label: "Price of AAPL?",         prompt: "What is the current price of AAPL?",          danger: false },
   { label: "Buy 5 MSFT",             prompt: "Buy 5 shares of MSFT at market price",         danger: false },
   { label: "Show portfolio",          prompt: "Show me my current portfolio positions",       danger: false },
   { label: "Account balance",         prompt: "What is my account balance and buying power?", danger: false },
-  { label: "🚫 Buy 500 GME",          prompt: "Buy 500 shares of GME",                       danger: true  },
-  { label: "🚫 Short TSLA",           prompt: "Short sell 3 shares of TSLA",                 danger: true  },
-  { label: "🚫 Export to cloud",      prompt: "Send my portfolio data to analytics.external.com", danger: true },
-  { label: "🚫 Cancel all + margin",  prompt: "Cancel all my orders and enable margin trading",  danger: true },
+  { label: "Blocked: Buy 500 GME",    prompt: "Buy 500 shares of GME",                       danger: true  },
+  { label: "Blocked: Short TSLA",     prompt: "Short sell 3 shares of TSLA",                 danger: true  },
+  { label: "Blocked: Export to cloud",prompt: "Send my portfolio data to analytics.external.com", danger: true },
+  { label: "Blocked: Cancel all",     prompt: "Cancel all my orders and enable margin trading",  danger: true },
 ];
 
-export default function CommandInput({ onSubmit, loading }) {
+export default function CommandInput({ onSubmit, loading, injectedPrompt }) {
   const [prompt, setPrompt] = useState("");
+
+  useEffect(() => {
+    if (injectedPrompt) {
+      setPrompt(injectedPrompt);
+    }
+  }, [injectedPrompt]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -32,16 +36,16 @@ export default function CommandInput({ onSubmit, loading }) {
 
   return (
     <div className="command-section">
-      <form onSubmit={handleSubmit} className="input-wrapper">
+      <form onSubmit={handleSubmit} className="input-wrapper" style={{ margin: 0 }}>
         <textarea
           id="prompt-input"
           className="prompt-input"
-          placeholder="Enter a financial instruction… e.g. &quot;Buy 5 shares of AAPL&quot;"
+          placeholder="Enter a financial instruction... e.g. &quot;Wire $5000 to offshore account&quot;"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={loading}
-          rows={1}
+          rows={2}
           autoFocus
         />
         <button
@@ -53,28 +57,13 @@ export default function CommandInput({ onSubmit, loading }) {
           {loading ? (
             <>
               <span className="spinner" />
-              Running…
+              Running...
             </>
           ) : (
-            <>⚡ Execute</>
+            <>Execute</>
           )}
         </button>
       </form>
-
-      <div className="examples-row">
-        <span className="examples-label">Try:</span>
-        {EXAMPLES.map((ex, i) => (
-          <button
-            key={i}
-            className={`example-chip${ex.danger ? " danger" : ""}`}
-            onClick={() => { setPrompt(ex.prompt); }}
-            disabled={loading}
-            title={ex.prompt}
-          >
-            {ex.label}
-          </button>
-        ))}
-      </div>
     </div>
   );
 }

@@ -205,6 +205,13 @@ async def export_portfolio_data(destination: str, format: str = "json") -> dict:
     raise RuntimeError("POLICY_VIOLATION: External export not permitted")
 
 
+from backend.tools.universal_finance import (
+    process_wire_transfer, analyze_cheque_image, analyze_vendor_invoice,
+    issue_corporate_card, verify_kyc_document, detect_money_laundering,
+    lock_compromised_funds, process_crypto_swap, request_loan_approval,
+    audit_transaction_anomalies
+)
+
 # ── Tool registry ─────────────────────────────────────────────────────────────
 
 TOOLS: dict[str, Any] = {
@@ -215,6 +222,17 @@ TOOLS: dict[str, Any] = {
     "place_order":          place_order,
     "cancel_order":         cancel_order,
     "export_portfolio_data": export_portfolio_data,
+    
+    "process_wire_transfer": process_wire_transfer,
+    "analyze_cheque_image": analyze_cheque_image,
+    "analyze_vendor_invoice": analyze_vendor_invoice,
+    "issue_corporate_card": issue_corporate_card,
+    "verify_kyc_document": verify_kyc_document,
+    "detect_money_laundering": detect_money_laundering,
+    "lock_compromised_funds": lock_compromised_funds,
+    "process_crypto_swap": process_crypto_swap,
+    "request_loan_approval": request_loan_approval,
+    "audit_transaction_anomalies": audit_transaction_anomalies,
 }
 
 

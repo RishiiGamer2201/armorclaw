@@ -10,6 +10,11 @@ export async function runAgent(prompt) {
   return res.data;
 }
 
+export async function overrideAction(tool, args) {
+  const res = await api.post("/api/agent/override", { tool, args });
+  return res.data;
+}
+
 export async function runDemo(scenario) {
   const res = await api.post(`/api/agent/demo/${scenario}`);
   return res.data;

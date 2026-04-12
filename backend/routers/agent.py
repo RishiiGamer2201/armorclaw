@@ -23,6 +23,8 @@ class RunRequest(BaseModel):
     prompt: str
 
 
+import httpx
+
 @router.post("/run")
 async def run_agent(req: RunRequest):
     if not req.prompt or not req.prompt.strip():
@@ -34,9 +36,45 @@ async def run_agent(req: RunRequest):
     # Plan
     plan = await create_plan(req.prompt)
 
+    # ── ArmorIQ Bridge Intent Capture ──
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                "http://localhost:8001/capture",
+                json={
+                    "intent": plan.get("intent", req.prompt),
+                    "steps": plan.get("steps", []),
+                    "risk_level": plan.get("risk_level", "low")
+                },
+                timeout=5.0
+            )
+            bridge_data = resp.json()
+            plan["token_id"] = bridge_data.get("token")
+            plan["token_source"] = "ArmorIQ-SDK-Bridge"
+    except Exception as e:
+        print(f"[WARN] Failed to hit ArmorIQ Bridge: {e}")
+        plan["token_source"] = "local_fallback"
+
     # Execute through all enforcement layers
     result = await _executor.execute_plan(plan)
     return result
+
+class OverrideRequest(BaseModel):
+    tool: str
+    args: dict
+
+@router.post("/override")
+async def override_run(req: OverrideRequest):
+    if _executor is None:
+        raise HTTPException(status_code=503, detail="Agent not ready")
+        
+    try:
+        from backend.tools.financial_tools import execute_tool
+        # Mechanical override bypassing policy engine entirely
+        res = await execute_tool(req.tool, req.args)
+        return {"status": "success", "data": res}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ── Telegram / OpenClaw friendly endpoint ────────────────────────────────────

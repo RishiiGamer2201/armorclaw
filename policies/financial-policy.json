@@ -1,85 +1,34 @@
 {
-  "version": "2.0",
-  "description": "ClawShield Finance v2 — Cognitive Intent Enforcement Policies (MoE + Validation Layer)",
-
-  "confidenceThreshold": 0.70,
-  "validatorWeights": { "policyConsensus": 0.40, "armoriqProof": 0.35, "intentAlignment": 0.25 },
-
-  "trading": {
-    "allowedTickers": ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "NVDA", "META", "JPM", "V", "BRK.B"],
-    "allowedSides": ["buy"],
-    "allowedOrderTypes": ["market", "limit"],
-    "allowedTimeInForce": ["day", "gtc"],
-    "maxOrderQty": 10,
-    "maxOrderValueUSD": 1500,
-    "maxDailyTrades": 5,
-    "maxPositionConcentrationPct": 30,
-    "shortSellingAllowed": false,
-    "leverageAllowed": false,
-    "optionsAllowed": false
-  },
-
-  "data": {
-    "allowedExportDestinations": ["local"],
-    "blockedExternalHosts": ["*"],
-    "portfolioDataClassification": "confidential",
-    "allowedInternalEndpoints": ["localhost", "127.0.0.1"]
-  },
-
   "operations": {
     "blockedActions": [
+      "short_sell",
+      "enable_margin",
+      "override_kyc",
       "cancel_all_orders",
-      "liquidate_all",
-      "modify_account_settings",
-      "transfer_funds",
-      "enable_margin"
-    ],
-    "requiresIntentToken": [
-      "place_order",
-      "cancel_order",
-      "export_portfolio_data"
+      "delete_account_history"
     ]
   },
-
-  "compliance": {
-    "auditAllActions": true,
-    "blockOnPolicyError": true,
-    "failClosed": true,
-    "requireDualEnforcement": true,
-    "logBlockedActions": true
+  "trading": {
+    "allowedSides": ["buy", "sell"],
+    "allowedOrderTypes": ["market", "limit", "stop", "stop_limit"],
+    "allowedTimeInForce": ["day", "gtc"],
+    "maxOrderQty": 1000,
+    "maxOrderValueUSD": 50000.0,
+    "maxDailyTrades": 50,
+    "allowedTickers": [
+      "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA",
+      "NVDA", "META", "SPY", "QQQ"
+    ]
   },
-
-  "policies": {
-    "paper_trade": {
-      "description": "Standard paper trading agent — can research and place limited orders",
-      "rules": [
-        {"id": "allow-get-quote",    "action": "allow", "tool": "get_quote",          "scope": "run"},
-        {"id": "allow-get-account",  "action": "allow", "tool": "get_account",        "scope": "run"},
-        {"id": "allow-get-positions","action": "allow", "tool": "get_positions",      "scope": "run"},
-        {"id": "allow-get-orders",   "action": "allow", "tool": "get_orders",         "scope": "run"},
-        {"id": "allow-place-order",  "action": "allow", "tool": "place_order",        "scope": "run"},
-        {"id": "allow-cancel-order", "action": "allow", "tool": "cancel_order",       "scope": "run"},
-        {"id": "deny-cancel-all",    "action": "deny",  "tool": "cancel_all_orders",  "scope": "run"},
-        {"id": "deny-liquidate",     "action": "deny",  "tool": "liquidate_all",      "scope": "run"},
-        {"id": "deny-enable-margin", "action": "deny",  "tool": "enable_margin",      "scope": "run"},
-        {"id": "deny-modify-acct",   "action": "deny",  "tool": "modify_account_settings", "scope": "run"},
-        {"id": "deny-transfer",      "action": "deny",  "tool": "transfer_funds",     "scope": "run"},
-        {"id": "deny-payment-write", "action": "deny",  "tool": "export_portfolio_data", "dataClass": "PAYMENT", "scope": "run"},
-        {"id": "deny-pci-write",     "action": "deny",  "tool": "export_portfolio_data", "dataClass": "PCI",     "scope": "run"},
-        {"id": "deny-external",      "action": "deny",  "tool": "external_request",   "scope": "run"}
-      ]
-    },
-    "research_only": {
-      "description": "Read-only research agent — no trading authority at all",
-      "rules": [
-        {"id": "allow-quote",   "action": "allow", "tool": "get_quote",    "scope": "run"},
-        {"id": "allow-bars",    "action": "allow", "tool": "get_bars",     "scope": "run"},
-        {"id": "deny-trading",  "action": "deny",  "tool": "place_order",          "scope": "run"},
-        {"id": "deny-cancel",   "action": "deny",  "tool": "cancel_all_orders",    "scope": "run"},
-        {"id": "deny-margin",   "action": "deny",  "tool": "enable_margin",        "scope": "run"},
-        {"id": "deny-acct-act", "action": "deny",  "tool": "get_account_activities","scope": "run"},
-        {"id": "deny-exfil",    "action": "deny",  "tool": "export_portfolio_data","scope": "run"}
-      ]
-    }
+  "data": {
+    "portfolioDataClassification": "CONFIDENTIAL",
+    "allowedExportDestinations": ["local"]
+  },
+  "universal": {
+    "max_wire_transfer_amount": 10000.0,
+    "expense_approval_threshold": 500.0,
+    "max_corporate_card_limit": 2000.0,
+    "max_cheque_fraud_score": 15,
+    "blocked_ibans": ["RU", "KP", "IR", "CU"]
   }
 }
