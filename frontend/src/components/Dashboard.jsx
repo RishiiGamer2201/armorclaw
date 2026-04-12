@@ -6,6 +6,7 @@ import ConnectionStatus    from "./ConnectionStatus";
 import TelegramChat        from "./TelegramChat";
 import { runAgent }        from "../api/agent";
 import Sidebar             from "./Sidebar";
+import FeatureResultViewer from "./FeatureResultViewer";
 
 const TABS = ["Agent", "Telegram", "Audit Log"];
 
@@ -140,21 +141,7 @@ export default function Dashboard({ onReturnHome }) {
                 </div>
               )}
 
-              <div className="card">
-                <div className="card-header">
-                  <span className="card-title">
-                    Enforcement Timeline
-                  </span>
-                  {hasResults && (
-                    <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
-                      {stats?.total} step{stats?.total !== 1 ? "s" : ""} . threshold {executionData?.threshold ? `${(executionData.threshold * 100).toFixed(0)}%` : "70%"}
-                    </span>
-                  )}
-                </div>
-                <div className="card-body" style={{ padding: hasResults ? "16px" : "0" }}>
-                  <ExecutionTimeline results={results} loading={loading} />
-                </div>
-              </div>
+              <FeatureResultViewer executionData={executionData} />
             </>
           )}
 

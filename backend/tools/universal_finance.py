@@ -6,9 +6,11 @@ from backend.database.db import get_db
 
 # ── Gemini Setup ──────────────────────────────────────────────────────────────
 # We use the user's provided Gemini API key for Vision tools
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AIzaSyBoNWYGUMrSRXdm5iGDfiaEAHzWYcuFDi8")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AIzaSyChQEQwKPWu_9AqiEl5C-aEYkWWKwv6VZI")
 
 def get_gemini_client():
+    if not GEMINI_API_KEY:
+        raise ValueError("GEMINI_API_KEY environment variable is not set")
     return genai.Client(api_key=GEMINI_API_KEY)
 
 
