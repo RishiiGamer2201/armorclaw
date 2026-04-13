@@ -8,7 +8,8 @@ import FeaturePages  from "./components/FeaturePages";
 
 const FEATURE_IDS = [
   "cheque", "wire", "card", "kyc", "aml",
-  "freeze", "crypto", "invoice", "audit-tx", "loan"
+  "freeze", "crypto", "invoice", "audit-tx", "loan",
+  "sanctions", "cross-border", "onboarding", "delegation",
 ];
 
 export default function App() {

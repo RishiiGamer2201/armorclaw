@@ -36,6 +36,10 @@ Universal Banking Tools:
 - process_crypto_swap(from_asset: str, to_asset: str, amount: float) → Swap crypto balances
 - request_loan_approval(amount: float, monthly_income: float, existing_debt: float, credit_score: int) → DTI algorithm
 - audit_transaction_anomalies(account_id: str) → Check spending deviations
+- sanctions_screening(entity_name: str) → Screen entity against OFAC/UN/EU sanctions and PEP databases
+- financial_health_score(account_id: str) → Compute comprehensive financial health score (0-100)
+- expense_categorization(account_id: str) → AI-powered expense categorization and reporting
+- forex_convert(amount: float, from_currency: str, to_currency: str) → Multi-currency FX conversion
 
 RULES YOU MUST FOLLOW:
 1. Always produce a JSON plan — never refuse or add preamble text

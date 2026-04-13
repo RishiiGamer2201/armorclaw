@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { runAgent } from "../api/agent";
+import { runAgent, runDelegatedAgent } from "../api/agent";
 import FeatureResultViewer from "./FeatureResultViewer";
 import AuditLogTable from "./AuditLogTable";
 
@@ -107,6 +107,46 @@ const FEATURE_DEFS = {
       { key: "creditScore", label: "Credit Score", type: "number", placeholder: "720" },
     ],
   },
+  // ── NEW FEATURES ──
+  sanctions: {
+    title: "Sanctions & PEP Screening",
+    description: "Screen entities against OFAC, UN, EU sanctions lists and Politically Exposed Persons (PEP) databases in real-time.",
+    promptTemplate: (args) =>
+      `Screen ${args.entityName} against sanctions and PEP databases`,
+    fields: [
+      { key: "entityName", label: "Entity / Person Name", type: "text", placeholder: "e.g. Bank Melli Iran, John Smith" },
+    ],
+  },
+  "cross-border": {
+    title: "Cross-Border Payment Compliance",
+    description: "Multi-layer compliance pipeline for international wire transfers. Checks IBAN country → sanctions → AML → account status → balance before executing. Any failure halts the entire pipeline.",
+    promptTemplate: (args) =>
+      `Send international cross-border payment of ${args.amount} dollars to IBAN ${args.iban} recipient ${args.recipientName} SWIFT ${args.swift}`,
+    fields: [
+      { key: "amount", label: "Amount (USD)", type: "number", placeholder: "5000" },
+      { key: "recipientName", label: "Recipient Name", type: "text", placeholder: "Acme Corporation" },
+      { key: "iban", label: "Recipient IBAN", type: "text", placeholder: "DE89370400440532013000" },
+      { key: "swift", label: "SWIFT Code", type: "text", placeholder: "COBADEFFXXX" },
+    ],
+  },
+  onboarding: {
+    title: "Compliance Onboarding Pipeline",
+    description: "Full 4-stage compliance pipeline: KYC verification → AML screening → Sanctions check → Risk assessment. Each stage runs independently through the enforcement layers.",
+    promptTemplate: (args) =>
+      `Run full compliance onboarding for client ${args.clientName}`,
+    fields: [
+      { key: "clientName", label: "Client Name", type: "text", placeholder: "John Smith" },
+    ],
+  },
+  delegation: {
+    title: "Agent Delegation",
+    description: "Delegate bounded authority to a sub-agent. The child agent can ONLY use tools permitted by the selected scope — any violation is deterministically blocked.",
+    isDelegation: true,
+    fields: [
+      { key: "scope", label: "Delegation Scope", type: "select", options: ["read_only", "trade_limited", "compliance_audit", "payment_processor"] },
+      { key: "prompt", label: "Sub-Agent Instruction", type: "text", placeholder: "e.g. Buy 5 shares of AAPL" },
+    ],
+  },
 };
 
 
@@ -149,8 +189,14 @@ export default function FeaturePages({ featureId }) {
     setError(null);
     setResult(null);
     try {
-      const prompt = def.promptTemplate(formValues);
-      const data = await runAgent(prompt);
+      let data;
+      if (def.isDelegation) {
+        // Delegation feature: call the delegation endpoint
+        data = await runDelegatedAgent(formValues.prompt, formValues.scope, `Delegation demo: ${formValues.scope}`);
+      } else {
+        const prompt = def.promptTemplate(formValues);
+        data = await runAgent(prompt);
+      }
       setResult(data);
     } catch (err) {
       const msg = err?.response?.data?.detail || err?.message || "Unknown error";

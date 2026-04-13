@@ -52,6 +52,16 @@ export async function fetchStatus() {
   }
 }
 
+export async function runDelegatedAgent(prompt, scope, purpose = "") {
+  const res = await api.post("/api/agent/delegate", { prompt, scope, purpose });
+  return res.data;
+}
+
+export async function runRedAgentSuite() {
+  const res = await api.post("/api/agent/red-agent/run-all", {}, { timeout: 120000 });
+  return res.data;
+}
+
 export async function runTelegramAgent(prompt) {
   // Calls the same endpoint the Telegram bot uses — returns pre-formatted markdown text
   const res = await api.post("/api/agent/telegram", { prompt }, {

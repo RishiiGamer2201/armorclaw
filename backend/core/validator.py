@@ -119,7 +119,13 @@ class Validator:
         policy_cons  = gatekeeper_result.get("consensus", 1.0)
         verified     = armoriq_result.get("verified", False)
         source       = armoriq_result.get("source", "")
-        armoriq_proof = 1.0 if (verified and source == "armoriq") else (0.5 if verified else 0.0)
+        # 1.0 = ArmorIQ remote verified, 0.9 = local IAP Merkle proof verified, 0.0 = failed
+        if verified and source == "armoriq":
+            armoriq_proof = 1.0
+        elif verified and source == "local_iap":
+            armoriq_proof = 0.9
+        else:
+            armoriq_proof = 0.0
 
         rationale = step.get("rationale") or step.get("tool", "")
         alignment = await self.compute_alignment(rationale, step.get("tool", ""))

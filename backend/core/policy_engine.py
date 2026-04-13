@@ -15,10 +15,12 @@ READ_ONLY_TOOLS = {"get_quote", "get_account", "get_positions", "get_orders", "g
 EXPORT_TOOLS    = {"export_portfolio_data"}
 CANCEL_TOOLS    = {"cancel_order"}
 UNIVERSAL_TOOLS = {
-    "process_wire_transfer", "analyze_cheque_image", "analyze_vendor_invoice", 
-    "issue_corporate_card", "verify_kyc_document", "detect_money_laundering", 
-    "lock_compromised_funds", "process_crypto_swap", "request_loan_approval", 
-    "audit_transaction_anomalies"
+    "process_wire_transfer", "analyze_cheque_image", "analyze_vendor_invoice",
+    "issue_corporate_card", "verify_kyc_document", "detect_money_laundering",
+    "lock_compromised_funds", "process_crypto_swap", "request_loan_approval",
+    "audit_transaction_anomalies", "sanctions_screening",
+    "cross_border_payment", "compliance_onboarding",
+    "circuit_breaker_status", "scan_pii_leaks",
 }
 
 
