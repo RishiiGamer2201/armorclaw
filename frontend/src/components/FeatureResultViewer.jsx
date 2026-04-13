@@ -290,6 +290,138 @@ const OnboardingCard = ({ data }) => {
   );
 };
 
+// Quote Card
+const QuoteCard = ({ data }) => (
+  <div style={{ background: "rgba(30, 41, 59, 0.7)", borderRadius: 12, padding: 24, border: "1px solid rgba(100, 149, 237, 0.3)" }}>
+    <h3 style={{ margin: "0 0 16px 0", color: "#f8fafc" }}>Market Quote: {data.symbol}</h3>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div style={{ textAlign: "center", padding: 16, background: "rgba(16,185,129,0.08)", borderRadius: 8, border: "1px solid rgba(16,185,129,0.2)" }}>
+        <div style={{ fontSize: "0.75rem", color: "#94a3b8", textTransform: "uppercase" }}>Bid</div>
+        <div style={{ fontSize: "1.8rem", fontWeight: "bold", color: "#10b981" }}>${data.bidPrice}</div>
+      </div>
+      <div style={{ textAlign: "center", padding: 16, background: "rgba(100,149,237,0.08)", borderRadius: 8, border: "1px solid rgba(100,149,237,0.2)" }}>
+        <div style={{ fontSize: "0.75rem", color: "#94a3b8", textTransform: "uppercase" }}>Ask</div>
+        <div style={{ fontSize: "1.8rem", fontWeight: "bold", color: "#6495ed" }}>${data.askPrice}</div>
+      </div>
+    </div>
+    {data.timestamp && <div style={{ textAlign: "center", marginTop: 12, fontSize: "0.75rem", color: "#64748b" }}>{data.timestamp}</div>}
+  </div>
+);
+
+// Account Card
+const AccountCard = ({ data }) => (
+  <div style={{ background: "rgba(30, 41, 59, 0.7)", borderRadius: 12, padding: 24, border: "1px solid rgba(100, 149, 237, 0.3)" }}>
+    <h3 style={{ margin: "0 0 16px 0", color: "#f8fafc" }}>Account Overview</h3>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+      {[["Buying Power", data.buyingPower], ["Cash", data.cash], ["Portfolio Value", data.portfolioValue]].map(([label, val], i) => (
+        <div key={i} style={{ textAlign: "center", padding: 12, background: "rgba(0,0,0,0.15)", borderRadius: 8 }}>
+          <div style={{ fontSize: "0.72rem", color: "#94a3b8", textTransform: "uppercase" }}>{label}</div>
+          <div style={{ fontSize: "1.2rem", fontWeight: "bold", color: "#10b981" }}>${Number(val).toLocaleString()}</div>
+        </div>
+      ))}
+    </div>
+    <div style={{ display: "flex", justifyContent: "center", gap: 16, marginTop: 12, fontSize: "0.85rem" }}>
+      <span style={{ color: "#94a3b8" }}>Status: <strong style={{ color: data.status === "ACTIVE" ? "#10b981" : "#ef4444" }}>{data.status}</strong></span>
+      <span style={{ color: "#94a3b8" }}>Currency: <strong>{data.currency}</strong></span>
+    </div>
+  </div>
+);
+
+// Order Card
+const OrderCard = ({ data }) => (
+  <div style={{ background: "rgba(30, 41, 59, 0.7)", borderRadius: 12, padding: 24, border: "1px solid rgba(16, 185, 129, 0.3)" }}>
+    <h3 style={{ margin: "0 0 12px 0", color: "#f8fafc" }}>Order Submitted</h3>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 24px", fontSize: "0.9rem" }}>
+      <div><span style={{ color: "#64748b" }}>Order ID</span><br/><strong className="mono">{data.orderId}</strong></div>
+      <div><span style={{ color: "#64748b" }}>Symbol</span><br/><strong>{data.symbol}</strong></div>
+      <div><span style={{ color: "#64748b" }}>Side</span><br/><strong style={{ color: data.side === "buy" ? "#10b981" : "#ef4444" }}>{data.side?.toUpperCase()}</strong></div>
+      <div><span style={{ color: "#64748b" }}>Qty</span><br/><strong>{data.qty}</strong></div>
+      <div><span style={{ color: "#64748b" }}>Type</span><br/><strong>{data.type}</strong></div>
+      <div><span style={{ color: "#64748b" }}>Status</span><br/><strong style={{ color: "#f59e0b" }}>{data.status?.toUpperCase()}</strong></div>
+    </div>
+    {data.estimatedValue && <div style={{ marginTop: 12, textAlign: "center", fontSize: "0.85rem", color: "#94a3b8" }}>Estimated Value: <strong>${data.estimatedValue?.toLocaleString()}</strong></div>}
+  </div>
+);
+
+// Freeze Card
+const FreezeCard = ({ data }) => (
+  <div style={{ background: "rgba(239, 68, 68, 0.08)", borderRadius: 12, padding: 24, border: "1px solid rgba(239, 68, 68, 0.4)" }}>
+    <h3 style={{ margin: "0 0 12px 0", color: "#ef4444", display: "flex", alignItems: "center", gap: 8 }}>
+      <span style={{ fontSize: "1.5rem" }}>{"\u26A0"}</span> {data.action}
+    </h3>
+    <div style={{ fontSize: "0.9rem" }}>
+      <div><span style={{ color: "#94a3b8" }}>Account:</span> <strong>{data.account_id}</strong></div>
+      <div style={{ marginTop: 6 }}><span style={{ color: "#94a3b8" }}>Reason:</span> <strong>{data.reason}</strong></div>
+    </div>
+    <div style={{ marginTop: 12, padding: 10, background: "rgba(239,68,68,0.15)", borderRadius: 6, fontSize: "0.8rem", color: "#ef4444" }}>
+      All outgoing transactions are now BLOCKED for this account.
+    </div>
+  </div>
+);
+
+// Anomaly Card
+const AnomalyCard = ({ data }) => (
+  <div style={{ background: "rgba(30, 41, 59, 0.7)", borderRadius: 12, padding: 24, border: `1px solid ${data.anomaly_detected ? "rgba(239,68,68,0.4)" : "rgba(16,185,129,0.4)"}` }}>
+    <h3 style={{ margin: "0 0 12px 0", color: "#f8fafc" }}>Transaction Anomaly Audit</h3>
+    {data.anomaly_detected ? (
+      <div>
+        <div style={{ padding: 12, background: "rgba(239,68,68,0.1)", borderRadius: 8, marginBottom: 12 }}>
+          <strong style={{ color: "#ef4444" }}>Anomaly Detected</strong>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: "0.9rem" }}>
+          <div><span style={{ color: "#64748b" }}>TX ID</span><br/><strong>{data.tx_id}</strong></div>
+          <div><span style={{ color: "#64748b" }}>Amount</span><br/><strong style={{ color: "#ef4444" }}>${data.amount?.toLocaleString()}</strong></div>
+          <div><span style={{ color: "#64748b" }}>Average Spend</span><br/><strong>${data.average_spend?.toLocaleString()}</strong></div>
+          <div><span style={{ color: "#64748b" }}>Recipient</span><br/><strong>{data.recipient}</strong></div>
+        </div>
+      </div>
+    ) : (
+      <div style={{ padding: 12, background: "rgba(16,185,129,0.1)", borderRadius: 8, color: "#10b981" }}>
+        {data.message || "No anomalies detected"}
+      </div>
+    )}
+  </div>
+);
+
+// Circuit Breaker Card
+const CircuitBreakerCard = ({ data }) => (
+  <div style={{ background: "rgba(30, 41, 59, 0.7)", borderRadius: 12, padding: 24, border: `1px solid ${data.frozen ? "rgba(239,68,68,0.4)" : "rgba(16,185,129,0.4)"}` }}>
+    <h3 style={{ margin: "0 0 12px 0", color: "#f8fafc" }}>Circuit Breaker Status</h3>
+    <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+      <div style={{ width: 100, height: 100, borderRadius: "50%", border: `6px solid ${data.frozen ? "#ef4444" : "#10b981"}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ fontSize: "1.5rem", fontWeight: "bold", color: data.frozen ? "#ef4444" : "#10b981" }}>{data.trades_in_window}/{data.max_trades_per_minute}</span>
+        <span style={{ fontSize: "0.65rem", color: "#94a3b8" }}>trades/min</span>
+      </div>
+    </div>
+    <div style={{ textAlign: "center", fontWeight: 700, color: data.frozen ? "#ef4444" : "#10b981", fontSize: "1.1rem" }}>
+      {data.frozen ? "FROZEN - Trading Halted" : "ACTIVE - Trading Permitted"}
+    </div>
+    {data.freeze_reason && <div style={{ marginTop: 8, textAlign: "center", fontSize: "0.8rem", color: "#94a3b8" }}>{data.freeze_reason}</div>}
+  </div>
+);
+
+// PII Scanner Card
+const PIIScanCard = ({ data }) => (
+  <div style={{ background: "rgba(30, 41, 59, 0.7)", borderRadius: 12, padding: 24, border: `1px solid ${data.leak_detected ? "rgba(239,68,68,0.4)" : "rgba(16,185,129,0.4)"}` }}>
+    <h3 style={{ margin: "0 0 12px 0", color: "#f8fafc" }}>PII/PCI Leak Scanner</h3>
+    <div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
+      <div style={{ padding: "8px 16px", background: data.critical_findings > 0 ? "rgba(239,68,68,0.15)" : "rgba(16,185,129,0.15)", borderRadius: 6, textAlign: "center" }}>
+        <div style={{ fontSize: "1.5rem", fontWeight: "bold", color: data.critical_findings > 0 ? "#ef4444" : "#10b981" }}>{data.total_findings}</div>
+        <div style={{ fontSize: "0.7rem", color: "#94a3b8" }}>Findings</div>
+      </div>
+      <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
+        <span style={{ fontWeight: 600, color: data.critical_findings > 0 ? "#ef4444" : "#10b981" }}>{data.recommendation}</span>
+      </div>
+    </div>
+    {data.findings?.map((f, i) => (
+      <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "6px 12px", borderRadius: 4, marginBottom: 4, background: f.severity === "CRITICAL" ? "rgba(239,68,68,0.08)" : "rgba(245,158,11,0.08)", borderLeft: `3px solid ${f.severity === "CRITICAL" ? "#ef4444" : "#f59e0b"}` }}>
+        <span><strong>{f.type}</strong> <span style={{ fontFamily: "monospace", color: "#94a3b8" }}>{f.value}</span></span>
+        <span style={{ fontSize: "0.75rem", color: f.severity === "CRITICAL" ? "#ef4444" : "#f59e0b" }}>{f.severity}</span>
+      </div>
+    ))}
+  </div>
+);
+
 // Tool Poisoning Card
 const ToolPoisoningCard = ({ data }) => {
   const ha = data._hidden_action || {};
@@ -403,6 +535,13 @@ export default function FeatureResultViewer({ executionData }) {
           case "cross_border_payment":     CardComponent = CrossBorderCard; break;
           case "compliance_onboarding":    CardComponent = OnboardingCard; break;
           case "send_payment_notification": CardComponent = ToolPoisoningCard; break;
+          case "get_quote":                CardComponent = QuoteCard; break;
+          case "get_account":              CardComponent = AccountCard; break;
+          case "place_order":              CardComponent = OrderCard; break;
+          case "lock_compromised_funds":   CardComponent = FreezeCard; break;
+          case "audit_transaction_anomalies": CardComponent = AnomalyCard; break;
+          case "circuit_breaker_status":   CardComponent = CircuitBreakerCard; break;
+          case "scan_pii_leaks":           CardComponent = PIIScanCard; break;
           default:                         CardComponent = DefaultJSONCard; break;
         }
 

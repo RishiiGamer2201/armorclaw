@@ -207,52 +207,65 @@ export default function Dashboard({ onReturnHome }) {
               </div>
             )}
 
+            {/* === PHASE 1: PLANNING === */}
             {executionData && (
-              <div className="intent-banner">
-                <div className="intent-text">
-                  <div className="intent-label">Detected Intent</div>
-                  <div className="intent-value">{executionData.intent}</div>
-                  <div className="intent-meta">
-                    <span className={`intent-risk ${executionData.risk_level}`}>
-                      {executionData.risk_level?.toUpperCase()} RISK
-                    </span>
-                    {executionData.token_id && (
-                      <span className="intent-token">
-                        Token: {executionData.token_id.slice(0, 20)}...
-                        {" "}({executionData.token_source})
+              <div className="card" style={{ marginBottom: 12, borderLeft: "4px solid var(--blue)" }}>
+                <div className="card-header">
+                  <span className="card-title">Phase 1: Planning</span>
+                  <span style={{ fontSize: "0.72rem", color: "var(--blue)", fontWeight: 600 }}>LLM Reasoning</span>
+                </div>
+                <div className="card-body" style={{ padding: 16 }}>
+                  <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 12 }}>
+                    <div style={{ flex: 1, minWidth: 200 }}>
+                      <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", textTransform: "uppercase", marginBottom: 4 }}>Detected Intent</div>
+                      <div style={{ fontWeight: 600, fontSize: "1rem" }}>{executionData.intent}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", textTransform: "uppercase", marginBottom: 4 }}>Risk Level</div>
+                      <span className={`intent-risk ${executionData.risk_level}`} style={{ fontWeight: 700 }}>
+                        {executionData.risk_level?.toUpperCase()}
                       </span>
-                    )}
-                    {executionData.merkle_root && (
-                      <span className="intent-token" style={{ fontFamily: "monospace" }}>
-                        Merkle: {executionData.merkle_root.slice(0, 16)}...
+                    </div>
+                  </div>
+                  <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: 8 }}>Planned Steps:</div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    {executionData.results?.map((r, i) => (
+                      <span key={i} style={{
+                        padding: "4px 10px", borderRadius: 4, fontSize: "0.8rem", fontFamily: "monospace",
+                        background: r.status === "executed" ? "rgba(16,185,129,0.1)" : r.status === "blocked" ? "rgba(239,68,68,0.1)" : "rgba(245,158,11,0.1)",
+                        border: `1px solid ${r.status === "executed" ? "rgba(16,185,129,0.3)" : r.status === "blocked" ? "rgba(239,68,68,0.3)" : "rgba(245,158,11,0.3)"}`,
+                      }}>
+                        {r.tool}
                       </span>
-                    )}
+                    ))}
                   </div>
                   {executionData.crypto && (
-                    <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: 4 }}>
-                      {executionData.crypto.algorithm} | {executionData.crypto.leaf_count} leaves | depth {executionData.crypto.tree_depth}
+                    <div style={{ marginTop: 12, padding: "8px 12px", background: "rgba(100,149,237,0.06)", borderRadius: 6, fontSize: "0.75rem", fontFamily: "monospace", color: "var(--text-muted)" }}>
+                      Merkle Root: {executionData.merkle_root?.slice(0, 32)}... | {executionData.crypto.algorithm} | {executionData.crypto.leaf_count} leaves | depth {executionData.crypto.tree_depth}
                     </div>
                   )}
                 </div>
               </div>
             )}
 
-            {/* Enforcement Timeline */}
+            {/* === PHASE 2: ENFORCEMENT === */}
             {executionData?.results?.map((res, i) => res.enforcement_timeline && (
-              <div key={`timeline-${i}`} className="card" style={{ marginBottom: 12 }}>
+              <div key={`timeline-${i}`} className="card" style={{ marginBottom: 12, borderLeft: `4px solid ${res.status === "executed" ? "var(--green)" : "var(--red)"}` }}>
                 <div className="card-header">
-                  <span className="card-title" style={{ fontFamily: "monospace" }}>
-                    Step {res.step_id}: {res.tool}
+                  <span className="card-title">
+                    Phase 2: Enforcement
+                    <span style={{ fontFamily: "monospace", fontWeight: 400, marginLeft: 8 }}>
+                      Step {res.step_id}: {res.tool}
+                    </span>
                   </span>
-                  <span style={{ fontSize: "0.75rem", color: res.status === "executed" ? "var(--green)" : res.status === "blocked" ? "var(--red)" : "var(--amber)" }}>
+                  <span style={{ fontSize: "0.75rem", fontWeight: 700, padding: "2px 8px", borderRadius: 4, background: res.status === "executed" ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)", color: res.status === "executed" ? "var(--green)" : "var(--red)" }}>
                     {res.status?.toUpperCase()} {res.total_enforcement_ms && `(${res.total_enforcement_ms}ms)`}
                   </span>
                 </div>
                 <div className="card-body" style={{ padding: "12px 16px" }}>
                   {res.enforcement_timeline.map((layer, j) => (
                     <div key={j} style={{
-                      display: "flex", alignItems: "flex-start", gap: 10,
-                      padding: "8px 0",
+                      display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 0",
                       borderLeft: `3px solid ${layer.allowed ? "var(--green)" : "var(--red)"}`,
                       paddingLeft: 12, marginBottom: 4,
                     }}>
@@ -285,6 +298,14 @@ export default function Dashboard({ onReturnHome }) {
               </div>
             ))}
 
+            {/* === PHASE 3: EXECUTION RESULTS === */}
+            {executionData?.results?.some(r => r.status === "executed" && r.result) && (
+              <div style={{ borderLeft: "4px solid var(--green)", paddingLeft: 0, marginBottom: 12 }}>
+                <div style={{ padding: "8px 16px", fontSize: "0.8rem", fontWeight: 700, color: "var(--green)", textTransform: "uppercase", letterSpacing: 1 }}>
+                  Phase 3: Execution Results
+                </div>
+              </div>
+            )}
             <FeatureResultViewer executionData={executionData} />
           </>
         )}
