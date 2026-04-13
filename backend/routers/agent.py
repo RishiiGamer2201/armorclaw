@@ -70,8 +70,13 @@ async def override_run(req: OverrideRequest):
         
     try:
         from backend.tools.financial_tools import execute_tool
+        from backend.core.logger import log_step_executed
         # Mechanical override bypassing policy engine entirely
         res = await execute_tool(req.tool, req.args)
+        
+        # Log the manual override so it appears in the audit log
+        await log_step_executed({"tool": req.tool, "args": req.args}, res, 1.0)
+        
         return {"status": "success", "data": res}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

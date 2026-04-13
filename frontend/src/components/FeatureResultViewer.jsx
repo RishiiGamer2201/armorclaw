@@ -227,9 +227,11 @@ export default function FeatureResultViewer({ executionData }) {
 
         return (
           <div key={i} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div style={{ padding: "10px 16px", background: "rgba(16, 185, 129, 0.1)", border: "1px solid rgba(16, 185, 129, 0.3)", borderRadius: 8, color: "#10b981", fontWeight: "bold", display: "inline-block", alignSelf: "flex-start" }}>
-              ✅ Allowed & Executed: {res.tool}
-            </div>
+            {CardComponent === DefaultJSONCard && (
+              <div style={{ padding: "10px 16px", background: "rgba(16, 185, 129, 0.1)", border: "1px solid rgba(16, 185, 129, 0.3)", borderRadius: 8, color: "#10b981", fontWeight: "bold", display: "inline-block", alignSelf: "flex-start" }}>
+                ✅ Allowed & Executed: {res.tool}
+              </div>
+            )}
             <CardComponent tool={res.tool} data={payload} />
           </div>
         );

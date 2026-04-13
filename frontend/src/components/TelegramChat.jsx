@@ -82,17 +82,16 @@ export default function TelegramChat() {
         <div ref={messagesEndRef} />
       </div>
 
-      <form className="chat-input-area" onSubmit={handleSend}>
+      <form className="chat-input-row" onSubmit={handleSend}>
         <input
           type="text"
-          className="chat-input"
           placeholder="Message ClawShield..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           disabled={loading}
           autoFocus
         />
-        <button type="submit" className="chat-send-btn" disabled={!input.trim() || loading}>
+        <button type="submit" disabled={!input.trim() || loading}>
           ➤
         </button>
       </form>
