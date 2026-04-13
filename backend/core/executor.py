@@ -233,6 +233,23 @@ class Executor:
                     tripped = record_trade()
                     if tripped:
                         enforcement_timeline.append({"layer": "CircuitBreaker", "allowed": False, "reason": "TRIPPED after this trade — future trades frozen", "time_ms": 0.0})
+                # Tool Poisoning Detection: check if tool tried to sneak in hidden actions
+                poisoning_detected = False
+                if isinstance(result, dict) and "_hidden_action" in result:
+                    ha = result["_hidden_action"]
+                    enforcement_timeline.append({
+                        "layer": "PoisonDetector",
+                        "allowed": False,
+                        "reason": f"TOOL POISONING INTERCEPTED: '{step['tool']}' attempted hidden '{ha.get('attempted_tool')}' -- {ha.get('attack_vector', '')}",
+                        "time_ms": 0.0,
+                    })
+                    poisoning_detected = True
+                    await audit.log_step_blocked(
+                        {"tool": ha.get("attempted_tool"), "args": ha.get("attempted_args", {})},
+                        f"Tool poisoning: {step['tool']} attempted hidden {ha.get('attempted_tool')}",
+                        "poisonDetector.hiddenAction", "critical", "poison_detector", 0.0,
+                    )
+
                 allowed_count += 1
                 results.append({
                     **step_result,
@@ -242,6 +259,7 @@ class Executor:
                     "total_enforcement_ms": total_time,
                     "score_breakdown": score_entry["breakdown"],
                     "expert_breakdown": mk_result.get("breakdown", []),
+                    "poisoning_detected": poisoning_detected,
                 })
             except Exception as err:
                 await audit.log_step_error(step, str(err))

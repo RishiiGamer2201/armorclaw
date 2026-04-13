@@ -62,6 +62,16 @@ export async function runRedAgentSuite() {
   return res.data;
 }
 
+export async function runDriftDemo(originalIntent, driftedIntent) {
+  const res = await api.post("/api/agent/drift-demo", { original_intent: originalIntent, drifted_intent: driftedIntent }, { timeout: 30000 });
+  return res.data;
+}
+
+export async function runCascadeDemo() {
+  const res = await api.post("/api/agent/cascade-demo", {}, { timeout: 60000 });
+  return res.data;
+}
+
 export async function runTelegramAgent(prompt) {
   // Calls the same endpoint the Telegram bot uses — returns pre-formatted markdown text
   const res = await api.post("/api/agent/telegram", { prompt }, {

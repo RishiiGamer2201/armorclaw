@@ -213,6 +213,7 @@ from backend.tools.universal_finance import (
     cross_border_payment, compliance_onboarding,
     circuit_breaker_status, scan_pii_leaks,
     record_trade, is_circuit_broken, check_defcon_escalation, get_defcon_status,
+    send_payment_notification,
 )
 
 # ── Tool registry ─────────────────────────────────────────────────────────────
@@ -241,6 +242,7 @@ TOOLS: dict[str, Any] = {
     "compliance_onboarding": compliance_onboarding,
     "circuit_breaker_status": circuit_breaker_status,
     "scan_pii_leaks": scan_pii_leaks,
+    "send_payment_notification": send_payment_notification,
 }
 
 

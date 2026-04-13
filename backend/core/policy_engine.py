@@ -20,7 +20,7 @@ UNIVERSAL_TOOLS = {
     "lock_compromised_funds", "process_crypto_swap", "request_loan_approval",
     "audit_transaction_anomalies", "sanctions_screening",
     "cross_border_payment", "compliance_onboarding",
-    "circuit_breaker_status", "scan_pii_leaks",
+    "circuit_breaker_status", "scan_pii_leaks", "send_payment_notification",
 }
 
 

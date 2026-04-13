@@ -10,6 +10,7 @@ const FEATURE_IDS = [
   "cheque", "wire", "card", "kyc", "aml",
   "freeze", "crypto", "invoice", "audit-tx", "loan",
   "sanctions", "cross-border", "onboarding", "delegation",
+  "drift-demo", "cascade-demo",
 ];
 
 export default function App() {

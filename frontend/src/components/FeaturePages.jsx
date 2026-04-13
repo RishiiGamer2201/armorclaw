@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { runAgent, runDelegatedAgent } from "../api/agent";
+import { runAgent, runDelegatedAgent, runDriftDemo, runCascadeDemo } from "../api/agent";
 import FeatureResultViewer from "./FeatureResultViewer";
 import AuditLogTable from "./AuditLogTable";
 
@@ -140,12 +140,27 @@ const FEATURE_DEFS = {
   },
   delegation: {
     title: "Agent Delegation",
-    description: "Delegate bounded authority to a sub-agent. The child agent can ONLY use tools permitted by the selected scope — any violation is deterministically blocked.",
+    description: "Delegate bounded authority to a sub-agent. The child agent can ONLY use tools permitted by the selected scope -- any violation is deterministically blocked.",
     isDelegation: true,
     fields: [
       { key: "scope", label: "Delegation Scope", type: "select", options: ["read_only", "trade_limited", "compliance_audit", "payment_processor"] },
       { key: "prompt", label: "Sub-Agent Instruction", type: "text", placeholder: "e.g. Buy 5 shares of AAPL" },
     ],
+  },
+  "drift-demo": {
+    title: "Intent Drift Attack",
+    description: "Live demonstration of ArmorIQ's core capability. Register a Merkle tree for Intent A, then try to execute Intent B against the SAME token. The Merkle proof fails because B's tool calls were never in A's signed plan.",
+    isDriftDemo: true,
+    fields: [
+      { key: "original", label: "Original Intent (approved plan)", type: "text", placeholder: "What is the current price of AAPL?" },
+      { key: "drifted", label: "Drifted Intent (unauthorized deviation)", type: "text", placeholder: "Buy 100 shares of AAPL at market price" },
+    ],
+  },
+  "cascade-demo": {
+    title: "Multi-Agent Cascade Prevention",
+    description: "3 agents in a chain: Orchestrator (full) -> Research Agent (read-only, COMPROMISED) -> Execution Agent (trade-limited). ArmorIQ contains the blast radius -- compromising one agent cannot poison others.",
+    isCascadeDemo: true,
+    fields: [],
   },
 };
 
@@ -190,8 +205,11 @@ export default function FeaturePages({ featureId }) {
     setResult(null);
     try {
       let data;
-      if (def.isDelegation) {
-        // Delegation feature: call the delegation endpoint
+      if (def.isDriftDemo) {
+        data = await runDriftDemo(formValues.original, formValues.drifted);
+      } else if (def.isCascadeDemo) {
+        data = await runCascadeDemo();
+      } else if (def.isDelegation) {
         data = await runDelegatedAgent(formValues.prompt, formValues.scope, `Delegation demo: ${formValues.scope}`);
       } else {
         const prompt = def.promptTemplate(formValues);
@@ -206,7 +224,7 @@ export default function FeaturePages({ featureId }) {
     }
   };
 
-  const allFilled = def.fields.every(
+  const allFilled = def.fields.length === 0 || def.fields.every(
     (f) => formValues[f.key] && String(formValues[f.key]).trim() !== ""
   );
 
@@ -303,7 +321,79 @@ export default function FeaturePages({ featureId }) {
 
       {error && <div className="error-box" style={{ marginBottom: 16 }}>{error}</div>}
 
-      {result && (
+      {result && result.demo_type === "intent_drift" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div className="card"><div className="card-header"><span className="card-title">Original Plan (Approved)</span></div>
+            <div className="card-body" style={{ padding: 16 }}>
+              <div style={{ fontWeight: 600, marginBottom: 8, color: "var(--green)" }}>Intent: {result.original?.intent}</div>
+              <div style={{ fontSize: "0.8rem", fontFamily: "monospace", color: "var(--text-muted)" }}>Merkle Root: {result.original?.merkle_root?.slice(0, 32)}...</div>
+              <div style={{ marginTop: 8 }}>{result.original?.steps?.map((s, i) => (
+                <div key={i} style={{ padding: "6px 12px", background: "rgba(16,185,129,0.08)", borderLeft: "3px solid var(--green)", borderRadius: 4, marginBottom: 4, fontSize: "0.85rem" }}>
+                  Step {i+1}: <strong>{s.tool}</strong>
+                </div>
+              ))}</div>
+            </div>
+          </div>
+          <div className="card"><div className="card-header"><span className="card-title">Drifted Steps (Unauthorized)</span></div>
+            <div className="card-body" style={{ padding: 16 }}>
+              <div style={{ fontWeight: 600, marginBottom: 8, color: "var(--red)" }}>Drifted Intent: {result.drifted?.intent}</div>
+              {result.drift_results?.map((r, i) => (
+                <div key={i} style={{ padding: "10px 12px", background: r.drift_detected ? "rgba(239,68,68,0.08)" : "rgba(16,185,129,0.08)", borderLeft: `3px solid ${r.drift_detected ? "var(--red)" : "var(--green)"}`, borderRadius: 4, marginBottom: 6 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontWeight: 600, fontSize: "0.9rem" }}>Step {r.step_id}: <span style={{ fontFamily: "monospace" }}>{r.tool}</span></span>
+                    <span style={{ fontSize: "0.75rem", fontWeight: 700, padding: "2px 8px", borderRadius: 4, background: r.drift_detected ? "rgba(239,68,68,0.2)" : "rgba(16,185,129,0.2)", color: r.drift_detected ? "var(--red)" : "var(--green)" }}>
+                      {r.drift_detected ? "DRIFT BLOCKED" : "MATCHED"}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: 4 }}>{r.reason?.slice(0, 120)}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {result.drift_detected && (
+            <div style={{ padding: 16, background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 8, fontWeight: 600, color: "var(--red)", textAlign: "center" }}>
+              INTENT DRIFT DETECTED -- All unauthorized steps blocked by Merkle proof verification
+            </div>
+          )}
+        </div>
+      )}
+
+      {result && result.demo_type === "cascade_prevention" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {result.agents?.map((agent, i) => (
+            <div key={i} className="card" style={{ borderLeft: `4px solid ${agent.status === "compromised" ? "var(--red)" : "var(--green)"}` }}>
+              <div className="card-header">
+                <span className="card-title">
+                  {agent.status === "compromised" ? "\u26A0 " : "\u2713 "}
+                  Agent {i+1}: {agent.agent}
+                </span>
+                <span style={{ fontSize: "0.75rem", fontWeight: 700, padding: "2px 8px", borderRadius: 4, background: agent.status === "compromised" ? "rgba(239,68,68,0.2)" : "rgba(16,185,129,0.2)", color: agent.status === "compromised" ? "var(--red)" : "var(--green)" }}>
+                  {agent.status.toUpperCase()}
+                </span>
+              </div>
+              <div className="card-body" style={{ padding: 16 }}>
+                <div style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginBottom: 8 }}>{agent.role}</div>
+                <div style={{ fontSize: "0.85rem", marginBottom: 8 }}>Scope: <strong>{agent.scope}</strong></div>
+                <div style={{ fontSize: "0.85rem", marginBottom: 8 }}>Prompt: <em>{agent.prompt?.slice(0, 80)}</em></div>
+                <div style={{ display: "flex", gap: 16, fontSize: "0.85rem" }}>
+                  <span>Allowed: <strong style={{ color: "var(--green)" }}>{agent.result?.stats?.allowed || 0}</strong></span>
+                  <span>Blocked: <strong style={{ color: "var(--red)" }}>{agent.result?.stats?.blocked || 0}</strong></span>
+                </div>
+                {agent.delegation_info?.actions_blocked > 0 && (
+                  <div style={{ marginTop: 8, padding: "8px 12px", background: "rgba(239,68,68,0.1)", borderRadius: 6, fontSize: "0.8rem", color: "var(--red)" }}>
+                    Delegation violations caught: {agent.delegation_info.actions_blocked}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+          <div style={{ padding: 16, background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)", borderRadius: 8, fontSize: "0.9rem" }}>
+            <strong>Cascade Contained:</strong> {result.summary?.explanation}
+          </div>
+        </div>
+      )}
+
+      {result && !result.demo_type && (
         <div className="feature-result-container">
           <FeatureResultViewer executionData={result} />
         </div>

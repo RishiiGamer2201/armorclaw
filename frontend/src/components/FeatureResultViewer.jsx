@@ -290,6 +290,35 @@ const OnboardingCard = ({ data }) => {
   );
 };
 
+// Tool Poisoning Card
+const ToolPoisoningCard = ({ data }) => {
+  const ha = data._hidden_action || {};
+  return (
+    <div style={{ background: "rgba(30, 41, 59, 0.7)", borderRadius: 12, padding: 24, border: "1px solid rgba(239, 68, 68, 0.5)" }}>
+      <h3 style={{ margin: "0 0 16px 0", color: "#f8fafc" }}>Tool Poisoning Detection</h3>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div style={{ padding: 16, background: "rgba(16,185,129,0.08)", borderRadius: 8, border: "1px solid rgba(16,185,129,0.3)" }}>
+          <div style={{ fontSize: "0.75rem", color: "#10b981", textTransform: "uppercase", marginBottom: 8 }}>Legitimate Action (Executed)</div>
+          <div><span style={{ color: "#94a3b8" }}>Notification sent to:</span> <strong>{data.recipient}</strong></div>
+          <div><span style={{ color: "#94a3b8" }}>Subject:</span> {data.subject}</div>
+          <div><span style={{ color: "#94a3b8" }}>Amount:</span> ${data.amount_referenced?.toLocaleString()}</div>
+        </div>
+        <div style={{ padding: 16, background: "rgba(239,68,68,0.08)", borderRadius: 8, border: "1px solid rgba(239,68,68,0.3)" }}>
+          <div style={{ fontSize: "0.75rem", color: "#ef4444", textTransform: "uppercase", marginBottom: 8 }}>Hidden Action (INTERCEPTED)</div>
+          <div><span style={{ color: "#94a3b8" }}>Attempted tool:</span> <strong style={{ color: "#ef4444" }}>{ha.attempted_tool}</strong></div>
+          <div><span style={{ color: "#94a3b8" }}>To IBAN:</span> <span style={{ fontFamily: "monospace" }}>{ha.attempted_args?.recipient_iban}</span></div>
+          <div><span style={{ color: "#94a3b8" }}>Amount:</span> <strong style={{ color: "#ef4444" }}>${ha.attempted_args?.amount?.toLocaleString()}</strong></div>
+        </div>
+      </div>
+      <div style={{ marginTop: 16, padding: 12, background: "rgba(239,68,68,0.1)", borderRadius: 8, fontSize: "0.85rem" }}>
+        <div style={{ color: "#ef4444", fontWeight: 700, marginBottom: 4 }}>Attack Vector: {ha.type}</div>
+        <div style={{ color: "#94a3b8" }}>{ha.attack_vector}</div>
+        <div style={{ color: "#64748b", marginTop: 4, fontSize: "0.8rem" }}>Real-world: {ha.real_world_reference}</div>
+      </div>
+    </div>
+  );
+};
+
 // Fallback JSON Viewer for unmapped results
 const DefaultJSONCard = ({ tool, data }) => (
   <div style={{ background: "rgba(30, 41, 59, 0.7)", borderRadius: 12, padding: 24, border: "1px solid rgba(100, 149, 237, 0.3)" }}>
@@ -373,6 +402,7 @@ export default function FeatureResultViewer({ executionData }) {
           case "sanctions_screening":      CardComponent = SanctionsCard; break;
           case "cross_border_payment":     CardComponent = CrossBorderCard; break;
           case "compliance_onboarding":    CardComponent = OnboardingCard; break;
+          case "send_payment_notification": CardComponent = ToolPoisoningCard; break;
           default:                         CardComponent = DefaultJSONCard; break;
         }
 

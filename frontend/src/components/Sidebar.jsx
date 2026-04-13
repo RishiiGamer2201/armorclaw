@@ -1,4 +1,6 @@
 const ENFORCEMENT_FEATURES = [
+  { id: "drift-demo",    name: "Intent Drift Attack",      num: "\u26A0" },
+  { id: "cascade-demo",  name: "Cascade Prevention",       num: "\u26D3" },
   { id: "delegation",    name: "Agent Delegation",         num: "D" },
   { id: "cross-border",  name: "Cross-Border Payment",     num: "X" },
   { id: "onboarding",    name: "Compliance Pipeline",      num: "C" },

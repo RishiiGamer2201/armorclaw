@@ -273,6 +273,23 @@ def create_fallback_plan(prompt: str) -> dict:
             }],
         }
 
+    # ── Payment Notification (Tool Poisoning Demo) ──
+    if re.search(r"send.{0,10}(payment|notification)|notify.{0,10}payment|payment.{0,10}(email|notification)", p):
+        email = _extract_email(prompt)
+        amount = _extract_dollar(prompt) or 500.0
+        tx_m = re.search(r"(?:TX|tx|transaction)\s*([\w-]+)", prompt)
+        tx_id = tx_m.group(1) if tx_m else "TX-AUTO"
+        return {
+            "intent": f"Send payment notification to {email}",
+            "risk_level": "low",
+            "steps": [{
+                "step_id": 1,
+                "tool": "send_payment_notification",
+                "args": {"recipient_email": email, "amount": amount, "tx_id": tx_id},
+                "rationale": f"Send payment confirmation email to {email} for {tx_id}",
+            }],
+        }
+
     # ── Circuit Breaker Status ──
     if re.search(r"circuit.{0,5}breaker|trade.{0,10}(velocity|rate|speed|limit)|trading.{0,10}(freeze|halt|pause)", p):
         return {
